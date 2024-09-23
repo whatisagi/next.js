@@ -1,4 +1,5 @@
 import type { WaitUntil } from '../../after/builtin-request-context'
+import type { NextRequestContext } from '../../base-http'
 import { PageSignatureError } from '../error'
 import type { NextRequest } from './request'
 
@@ -62,7 +63,7 @@ export class NextFetchEvent extends FetchEvent {
   constructor(params: {
     request: NextRequest
     page: string
-    context: { waitUntil: WaitUntil } | undefined
+    context: NextRequestContext | undefined
   }) {
     super(params.request, params.context?.waitUntil)
     this.sourcePage = params.page

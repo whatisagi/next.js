@@ -1,4 +1,4 @@
-'use client'
+// 'use client'
 import * as Lodash from 'lodash-es'
 
 export function LodashComponent() {

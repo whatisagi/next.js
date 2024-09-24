@@ -6,6 +6,11 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  experimental: {
+    turbo: {
+      moduleIdStrategy: 'named',
+    },
+  },
 }
 
 export default nextConfig

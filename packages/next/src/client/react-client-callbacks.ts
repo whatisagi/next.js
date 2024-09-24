@@ -1,7 +1,6 @@
 import type { HydrationOptions } from 'react-dom/client'
 import { isBailoutToCSRError } from '../shared/lib/lazy-dynamic/bailout-to-csr'
 import { getReactStitchedError } from './components/react-dev-overlay/internal/helpers/stitched-error'
-import { originConsoleError } from './components/globals/intercept-console-error'
 import { handleClientError } from './components/react-dev-overlay/internal/helpers/use-error-handler'
 import isError from '../lib/is-error'
 import { isNextRouterError } from './components/is-next-router-error'
@@ -12,6 +11,7 @@ const reportGlobalError =
       // emulating an uncaught JavaScript error.
       reportError
     : (error: any) => {
+        console.log('No report - Unhandled error:', error)
         window.console.error(error)
       }
 
@@ -19,14 +19,13 @@ export const onRecoverableError: HydrationOptions['onRecoverableError'] = (
   err,
   errorInfo
 ) => {
-  if (isBailoutToCSRError(err)) return
-
   const stitchedError = getReactStitchedError(err)
   // In development mode, pass along the component stack to the error
   if (process.env.NODE_ENV === 'development' && errorInfo.componentStack) {
     ;(stitchedError as any)._componentStack = errorInfo.componentStack
   }
   // Skip certain custom errors which are not expected to be reported on client
+  if (isBailoutToCSRError(err)) return
 
   reportGlobalError(stitchedError)
 }
@@ -65,7 +64,7 @@ export const onCaughtError: HydrationOptions['onCaughtError'] = (
 
     const originErrorStack = isError(err) ? err.stack || '' : ''
     // Always log the modified error instance so the console.error interception side can pick it up easily without constructing an error again.
-    originConsoleError(originErrorStack + '\n\n' + errorLocation)
+    console.error(originErrorStack + '\n\n' + errorLocation)
     handleClientError(stitchedError)
   } else {
     console.error(err)
@@ -97,7 +96,7 @@ export const onUncaughtError: HydrationOptions['onUncaughtError'] = (
     // Create error location with errored component and error boundary, to match the behavior of default React onCaughtError handler.
     const errorLocation = `The above error occurred in the <${componentThatErroredName}> component.`
 
-    originConsoleError(stitchedError.stack + '\n\n' + errorLocation)
+    console.error(stitchedError.stack + '\n\n' + errorLocation)
     // Always log the modified error instance so the console.error interception side can pick it up easily without constructing an error again.
     reportGlobalError(stitchedError)
   } else {

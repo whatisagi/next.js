@@ -15,10 +15,8 @@ import {
 import { LeftRightDialogHeader } from '../components/LeftRightDialogHeader'
 import { Overlay } from '../components/Overlay'
 import { Toast } from '../components/Toast'
-import {
-  getErrorByType,
-  type ReadyRuntimeError,
-} from '../helpers/getErrorByType'
+import { getErrorByType } from '../helpers/getErrorByType'
+import type { ReadyRuntimeError } from '../helpers/getErrorByType'
 import { noop as css } from '../helpers/noop-template'
 import { CloseIcon } from '../icons/CloseIcon'
 import { RuntimeError } from './RuntimeError'

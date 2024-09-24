@@ -11,7 +11,6 @@ const reportGlobalError =
       // emulating an uncaught JavaScript error.
       reportError
     : (error: any) => {
-        console.log('No report - Unhandled error:', error)
         window.console.error(error)
       }
 

@@ -4,7 +4,10 @@ import type { AsyncLocalStorage } from 'async_hooks'
 import type { RequestStore } from '../../client/components/request-async-storage.external'
 import type { RenderOpts } from '../app-render/types'
 import type { WithStore } from './with-store'
-import type { NextRequest } from '../web/spec-extension/request'
+import {
+  getInternalNextRequestContext,
+  type NextRequest,
+} from '../web/spec-extension/request'
 import type { __ApiPreviewProps } from '../api-utils'
 
 import { FLIGHT_HEADERS } from '../../client/components/app-router-headers'
@@ -21,7 +24,6 @@ import { ResponseCookies, RequestCookies } from '../web/spec-extension/cookies'
 import { DraftModeProvider } from './draft-mode-provider'
 import { splitCookiesString } from '../web/utils'
 import { AfterContext } from '../after/after-context'
-import type { RequestLifecycleOpts } from '../base-server'
 import type { ServerComponentsHmrCache } from '../response-cache'
 
 function getHeaders(headers: Headers | IncomingHttpHeaders): ReadonlyHeaders {
@@ -75,8 +77,8 @@ export type RequestContext = RequestResponsePair & {
 }
 
 type RequestResponsePair =
-  | { req: BaseNextRequest; res: BaseNextResponse; context?: undefined } // for an app page
-  | { req: NextRequest; res: undefined; context: Partial<RequestLifecycleOpts> } // in an api route or middleware
+  | { req: BaseNextRequest; res: BaseNextResponse } // for an app page
+  | { req: NextRequest; res: undefined } // in an api route or middleware
 
 /**
  * If middleware set cookies in this request (indicated by `x-middleware-set-cookie`),
@@ -212,10 +214,11 @@ function createAfterContext(
     return undefined
   }
 
-  if (args.context) {
+  if (!args.res) {
+    const context = getInternalNextRequestContext(args.req)
     return new AfterContext({
-      waitUntil: args.context.waitUntil,
-      onClose: args.context.onClose,
+      waitUntil: context?.waitUntil,
+      onClose: context?.onClose,
     })
   }
 

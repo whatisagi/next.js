@@ -27,6 +27,9 @@ export type FetchMetric = {
 export type FetchMetrics = Array<FetchMetric>
 
 export type NextRequestContext = { waitUntil: WaitUntil }
+export type NextRequestContextWeb = NextRequestContext & {
+  onClose: BaseNextResponse['onClose']
+}
 
 export abstract class BaseNextRequest<Body = any> {
   protected _cookies: NextApiRequestCookies | undefined

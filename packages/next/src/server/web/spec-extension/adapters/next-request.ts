@@ -1,11 +1,11 @@
-import type { BaseNextRequest } from '../../../base-http'
+import type { BaseNextRequest, NextRequestContextWeb } from '../../../base-http'
 import type { NodeNextRequest } from '../../../base-http/node'
 import type { WebNextRequest } from '../../../base-http/web'
 import type { Writable } from 'node:stream'
 
 import { getRequestMeta } from '../../../request-meta'
 import { fromNodeOutgoingHttpHeaders } from '../../utils'
-import { NextRequest } from '../request'
+import { NEXT_REQUEST_CONTEXT_PARAM, NextRequest } from '../request'
 import { isNodeNextRequest, isWebNextRequest } from '../../../base-http/helpers'
 
 export const ResponseAbortedName = 'ResponseAborted'
@@ -53,10 +53,15 @@ export function signalFromNodeResponse(response: Writable): AbortSignal {
   return signal
 }
 
+type NextRequestExtraOpts = {
+  signal: AbortSignal
+  onClose: NextRequestContextWeb['onClose'] | undefined
+}
+
 export class NextRequestAdapter {
   public static fromBaseNextRequest(
     request: BaseNextRequest,
-    signal: AbortSignal
+    opts: NextRequestExtraOpts
   ): NextRequest {
     if (
       // The type check here ensures that `req` is correctly typed, and the
@@ -64,14 +69,14 @@ export class NextRequestAdapter {
       process.env.NEXT_RUNTIME === 'edge' &&
       isWebNextRequest(request)
     ) {
-      return NextRequestAdapter.fromWebNextRequest(request)
+      return NextRequestAdapter.fromWebNextRequest(request, opts)
     } else if (
       // The type check here ensures that `req` is correctly typed, and the
       // environment variable check provides dead code elimination.
       process.env.NEXT_RUNTIME !== 'edge' &&
       isNodeNextRequest(request)
     ) {
-      return NextRequestAdapter.fromNodeNextRequest(request, signal)
+      return NextRequestAdapter.fromNodeNextRequest(request, opts)
     } else {
       throw new Error('Invariant: Unsupported NextRequest type')
     }
@@ -79,7 +84,7 @@ export class NextRequestAdapter {
 
   public static fromNodeNextRequest(
     request: NodeNextRequest,
-    signal: AbortSignal
+    { signal, onClose }: NextRequestExtraOpts
   ): NextRequest {
     // HEAD and GET requests can not have a body.
     let body: BodyInit | null = null
@@ -110,6 +115,10 @@ export class NextRequestAdapter {
       // @ts-expect-error - see https://github.com/whatwg/fetch/pull/1457
       duplex: 'half',
       signal,
+      [NEXT_REQUEST_CONTEXT_PARAM]: {
+        ...request.context,
+        onClose,
+      },
       // geo
       // ip
       // nextConfig
@@ -124,7 +133,10 @@ export class NextRequestAdapter {
     })
   }
 
-  public static fromWebNextRequest(request: WebNextRequest): NextRequest {
+  public static fromWebNextRequest(
+    request: WebNextRequest,
+    { onClose }: Omit<NextRequestExtraOpts, 'signal'>
+  ): NextRequest {
     // HEAD and GET requests can not have a body.
     let body: ReadableStream | null = null
     if (request.method !== 'GET' && request.method !== 'HEAD') {
@@ -137,6 +149,10 @@ export class NextRequestAdapter {
       // @ts-expect-error - see https://github.com/whatwg/fetch/pull/1457
       duplex: 'half',
       signal: request.request.signal,
+      [NEXT_REQUEST_CONTEXT_PARAM]: {
+        ...request.context,
+        onClose,
+      },
       // geo
       // ip
       // nextConfig

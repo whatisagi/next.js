@@ -52,7 +52,7 @@ export async function exportAppRoute(
   // Adapt the request and response to the Next.js request and response.
   const request = NextRequestAdapter.fromNodeNextRequest(
     new NodeNextRequest(req, undefined),
-    signalFromNodeResponse(res)
+    { signal: signalFromNodeResponse(res), onClose: undefined }
   )
 
   // Create the context for the handler. This contains the params from
@@ -69,10 +69,6 @@ export async function exportAppRoute(
         previewModeSigningKey: '',
       },
       notFoundRoutes: [],
-    },
-    context: {
-      waitUntil: undefined,
-      onClose: undefined,
     },
     renderOpts: {
       experimental,

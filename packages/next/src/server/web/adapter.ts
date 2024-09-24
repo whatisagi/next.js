@@ -6,7 +6,12 @@ import {
   NextFetchEvent,
   getWaitUntilPromiseFromEvent,
 } from './spec-extension/fetch-event'
-import { NextRequest } from './spec-extension/request'
+import {
+  getInternalNextRequestContext,
+  NEXT_REQUEST_CONTEXT_PARAM,
+  NextRequest,
+  setInternalNextRequestContext,
+} from './spec-extension/request'
 import { NextResponse } from './spec-extension/response'
 import { relativizeURL } from '../../shared/lib/router/utils/relativize-url'
 import { NextURL } from './next-url'
@@ -155,6 +160,12 @@ export async function adapter(
       method: params.request.method,
       nextConfig: params.request.nextConfig,
       signal: params.request.signal,
+      // starts out as undefined
+      // - handlers that use NextRequest (api routes, middleware) initialize it
+      //   via `setInternalNextRequestContext`
+      // - handlers that use NextWebRequest (app ssr) don't need it,
+      //   because they use `req.context.waitUntil` and `res.onClose` instead
+      [NEXT_REQUEST_CONTEXT_PARAM]: undefined,
     },
   })
 
@@ -224,9 +235,14 @@ export async function adapter(
       let waitUntil: NextRequestContext['waitUntil'] | undefined = undefined
       let closeController: CloseController | undefined = undefined
 
-      if (isAfterEnabled) {
+      if (isAfterEnabled && !getInternalNextRequestContext(request)) {
         waitUntil = event.waitUntil.bind(event)
         closeController = new CloseController()
+
+        setInternalNextRequestContext(request, {
+          waitUntil,
+          onClose: closeController.onClose.bind(closeController),
+        })
       }
 
       return getTracer().trace(
@@ -247,12 +263,6 @@ export async function adapter(
               {
                 req: request,
                 res: undefined,
-                context: {
-                  waitUntil,
-                  onClose: closeController
-                    ? closeController.onClose.bind(closeController)
-                    : undefined,
-                },
                 url: request.nextUrl,
                 renderOpts: {
                   onUpdateCookies: (cookies) => {

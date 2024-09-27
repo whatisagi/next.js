@@ -314,7 +314,7 @@ impl<C: Comments> ServerActions<C> {
                 .into(),
             })));
 
-        return Box::new(register_action_expr.clone());
+        Box::new(register_action_expr.clone())
     }
 
     fn maybe_hoist_and_create_proxy_for_server_action_function(
@@ -434,7 +434,7 @@ impl<C: Comments> ServerActions<C> {
                 .into(),
             })));
 
-        return Box::new(register_action_expr);
+        Box::new(register_action_expr)
     }
 
     fn maybe_hoist_and_create_proxy_for_cache_arrow_expr(
@@ -597,7 +597,7 @@ impl<C: Comments> ServerActions<C> {
                 .into(),
             })));
 
-        return Box::new(register_action_expr.clone());
+        Box::new(register_action_expr.clone())
     }
 
     fn maybe_hoist_and_create_proxy_for_cache_function(
@@ -729,7 +729,7 @@ impl<C: Comments> ServerActions<C> {
                 .into(),
             })));
 
-        return Box::new(register_action_expr);
+        Box::new(register_action_expr)
     }
 }
 

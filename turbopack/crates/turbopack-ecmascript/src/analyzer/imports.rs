@@ -201,6 +201,7 @@ pub(crate) enum ImportedSymbol {
     Symbol(JsWord),
     Exports,
     Part(u32),
+    PartEvaluation(u32),
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
@@ -374,15 +375,13 @@ impl Visit for Analyzer<'_> {
             self.data.imports.insert(local, (i, orig_sym));
         }
 
-        if import.specifiers.is_empty() {
-            if let Some(internal_symbol) = internal_symbol {
-                self.ensure_reference(
-                    import.span,
-                    import.src.value.clone(),
-                    internal_symbol,
-                    annotations,
-                );
-            }
+        if let Some(internal_symbol) = internal_symbol {
+            self.ensure_reference(
+                import.span,
+                import.src.value.clone(),
+                internal_symbol,
+                annotations,
+            );
         }
     }
 
@@ -470,6 +469,10 @@ impl Visit for Analyzer<'_> {
                     ));
                 }
             }
+        }
+
+        if let Some(internal_symbol) = internal_symbol {
+            self.ensure_reference(export.span, src.value.clone(), internal_symbol, annotations);
         }
     }
 
@@ -562,7 +565,13 @@ pub(crate) fn orig_name(n: &ModuleExportName) -> JsWord {
 
 fn parse_with(with: Option<&ObjectLit>) -> Option<ImportedSymbol> {
     find_turbopack_part_id_in_asserts(with?).map(|v| match v {
-        PartId::Internal(index) => ImportedSymbol::Part(index),
+        PartId::Internal(index, is_for_eval) => {
+            if is_for_eval {
+                ImportedSymbol::PartEvaluation(index)
+            } else {
+                ImportedSymbol::Part(index)
+            }
+        }
         PartId::ModuleEvaluation => ImportedSymbol::ModuleEvaluation,
         PartId::Export(e) => ImportedSymbol::Symbol(e.as_str().into()),
         PartId::Exports => ImportedSymbol::Exports,

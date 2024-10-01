@@ -4,6 +4,7 @@ import type { DraftModeProvider } from '../../server/async-storage/draft-mode-pr
 
 import { staticGenerationAsyncStorage } from '../../client/components/static-generation-async-storage.external'
 import { trackDynamicDataAccessed } from '../app-render/dynamic-rendering'
+import { createDedupedByCallsiteServerErrorLoggerDev } from '../create-deduped-by-callsite-server-error-loger'
 
 /**
  * In this version of Next.js `draftMode()` returns a Promise however you can still reference the properties of the underlying draftMode object
@@ -163,9 +164,9 @@ class DraftMode {
   }
 }
 
-function warnForSyncAccess(route: undefined | string, expression: string) {
-  const prefix = route ? ` In route ${route} a ` : 'A '
-  console.error(
-    `${prefix}\`draftMode()\` property was accessed directly with \`${expression}\`. \`draftMode()\` now returns a Promise and the return value should be awaited before accessing properties of the underlying draftMode object. In this version of Next.js direct access to \`${expression}\` is still supported to facilitate migration but in a future version you will be required to await the result. If this \`draftMode()\` use is inside an async function await the return value before accessing attempting iteration. If this use is inside a synchronous function then convert the function to async or await the call from outside this function and pass the result in.`
-  )
-}
+const warnForSyncAccess = createDedupedByCallsiteServerErrorLoggerDev(
+  function getSyncAccessWarning(route: undefined | string, expression: string) {
+    const prefix = route ? ` In route ${route} a ` : 'A '
+    return `${prefix}\`draftMode()\` property was accessed directly with \`${expression}\`. \`draftMode()\` now returns a Promise and the return value should be awaited before accessing properties of the underlying draftMode object. In this version of Next.js direct access to \`${expression}\` is still supported to facilitate migration but in a future version you will be required to await the result. If this \`draftMode()\` use is inside an async function await the return value before accessing attempting iteration. If this use is inside a synchronous function then convert the function to async or await the call from outside this function and pass the result in.`
+  }
+)

@@ -1775,8 +1775,6 @@ describe('dynamic-io', () => {
             expect.stringContaining(
               'enumerated with `{...params}`, `Object.keys(params)`, or similar.'
             ),
-            expect.stringContaining('accessed directly with `params.lowcard`'),
-            expect.stringContaining('accessed directly with `params.highcard`'),
           ])
         } else {
           expect($('#layout').text()).toBe('at buildtime')
@@ -1804,8 +1802,6 @@ describe('dynamic-io', () => {
             expect.stringContaining(
               'enumerated with `{...params}`, `Object.keys(params)`, or similar.'
             ),
-            expect.stringContaining('accessed directly with `params.lowcard`'),
-            expect.stringContaining('accessed directly with `params.highcard`'),
           ])
         } else {
           expect($('#layout').text()).toBe('at buildtime')
@@ -1833,8 +1829,6 @@ describe('dynamic-io', () => {
             expect.stringContaining(
               'enumerated with `{...params}`, `Object.keys(params)`, or similar.'
             ),
-            expect.stringContaining('accessed directly with `params.lowcard`'),
-            expect.stringContaining('accessed directly with `params.highcard`'),
           ])
         } else {
           expect($('#layout').text()).toBe('at buildtime')
@@ -1865,8 +1859,6 @@ describe('dynamic-io', () => {
             expect.stringContaining(
               'enumerated with `{...params}`, `Object.keys(params)`, or similar.'
             ),
-            expect.stringContaining('accessed directly with `params.lowcard`'),
-            expect.stringContaining('accessed directly with `params.highcard`'),
           ])
         } else {
           expect($('#layout').text()).toBe('at buildtime')
@@ -2025,8 +2017,6 @@ describe('dynamic-io', () => {
             expect.stringContaining(
               'enumerated with `{...params}`, `Object.keys(params)`, or similar.'
             ),
-            expect.stringContaining('accessed directly with `params.lowcard`'),
-            expect.stringContaining('accessed directly with `params.highcard`'),
           ])
         } else {
           expect($('#layout').text()).toBe('at buildtime')
@@ -2054,8 +2044,6 @@ describe('dynamic-io', () => {
             expect.stringContaining(
               'enumerated with `{...params}`, `Object.keys(params)`, or similar.'
             ),
-            expect.stringContaining('accessed directly with `params.lowcard`'),
-            expect.stringContaining('accessed directly with `params.highcard`'),
           ])
         } else {
           expect($('#layout').text()).toBe('at buildtime')
@@ -2150,8 +2138,6 @@ describe('dynamic-io', () => {
             expect.stringContaining(
               'enumerated with `{...params}`, `Object.keys(params)`, or similar.'
             ),
-            expect.stringContaining('accessed directly with `params.lowcard`'),
-            expect.stringContaining('accessed directly with `params.highcard`'),
           ])
         } else {
           expect($('#layout').text()).toBe('at runtime')
@@ -2180,8 +2166,6 @@ describe('dynamic-io', () => {
             expect.stringContaining(
               'enumerated with `{...params}`, `Object.keys(params)`, or similar.'
             ),
-            expect.stringContaining('accessed directly with `params.lowcard`'),
-            expect.stringContaining('accessed directly with `params.highcard`'),
           ])
         } else {
           expect($('#layout').text()).toBe('at runtime')
@@ -2371,8 +2355,6 @@ describe('dynamic-io', () => {
           ),
           expect.stringContaining('accessed directly with `params.dyn`'),
           expect.stringContaining('accessed directly with `params.value`'),
-          expect.stringContaining('accessed directly with `params.dyn`'),
-          expect.stringContaining('accessed directly with `params.value`'),
         ])
       } else {
         expect($('#layout').text()).toBe('at runtime')
@@ -2402,8 +2384,6 @@ describe('dynamic-io', () => {
           expect.stringContaining(
             'The following properties were not copied: `then` and `status`.'
           ),
-          expect.stringContaining('accessed directly with `params.dyn`'),
-          expect.stringContaining('accessed directly with `params.value`'),
           expect.stringContaining('accessed directly with `params.dyn`'),
           expect.stringContaining('accessed directly with `params.value`'),
         ])

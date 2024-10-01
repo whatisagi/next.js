@@ -18,6 +18,7 @@ import {
 import { StaticGenBailoutError } from '../../client/components/static-generation-bailout'
 import { makeResolvedReactPromise } from './utils'
 import { makeHangingPromise } from '../dynamic-rendering-utils'
+import { createDedupedByCallsiteServerErrorLoggerDev } from '../create-deduped-by-callsite-server-error-loger'
 
 /**
  * In this version of Next.js `headers()` returns a Promise however you can still reference the properties of the underlying Headers instance
@@ -425,19 +426,19 @@ function describeNameArg(arg: unknown) {
   return typeof arg === 'string' ? `'${arg}'` : '...'
 }
 
-function warnForSyncIteration(route?: string) {
-  const prefix = route ? ` In route ${route} ` : ''
-  console.error(
-    `${prefix}headers were iterated implicitly with something like \`for...of headers())\` or \`[...headers()]\`, or explicitly with \`headers()[Symbol.iterator]()\`. \`headers()\` now returns a Promise and the return value should be awaited before attempting to iterate over headers. In this version of Next.js iterating headers without awaiting first is still supported to facilitate migration but in a future version you will be required to await the result. If this \`headers()\` use is inside an async function await the return value before accessing attempting iteration. If this use is inside a synchronous function then convert the function to async or await the call from outside this function and pass the result in.`
-  )
-}
+const warnForSyncIteration = createDedupedByCallsiteServerErrorLoggerDev(
+  function getSyncIterationMessage(route?: string) {
+    const prefix = route ? ` In route ${route} ` : ''
+    return `${prefix}headers were iterated implicitly with something like \`for...of headers())\` or \`[...headers()]\`, or explicitly with \`headers()[Symbol.iterator]()\`. \`headers()\` now returns a Promise and the return value should be awaited before attempting to iterate over headers. In this version of Next.js iterating headers without awaiting first is still supported to facilitate migration but in a future version you will be required to await the result. If this \`headers()\` use is inside an async function await the return value before accessing attempting iteration. If this use is inside a synchronous function then convert the function to async or await the call from outside this function and pass the result in.`
+  }
+)
 
-function warnForSyncAccess(route: undefined | string, expression: string) {
-  const prefix = route ? ` In route ${route} a ` : 'A '
-  console.error(
-    `${prefix}header property was accessed directly with \`${expression}\`. \`headers()\` now returns a Promise and the return value should be awaited before accessing properties of the underlying headers instance. In this version of Next.js direct access to \`${expression}\` is still supported to facilitate migration but in a future version you will be required to await the result. If this \`headers()\` use is inside an async function await the return value before accessing attempting iteration. If this use is inside a synchronous function then convert the function to async or await the call from outside this function and pass the result in.`
-  )
-}
+const warnForSyncAccess = createDedupedByCallsiteServerErrorLoggerDev(
+  function getSyncAccessMessage(route: undefined | string, expression: string) {
+    const prefix = route ? ` In route ${route} a ` : 'A '
+    return `${prefix}header property was accessed directly with \`${expression}\`. \`headers()\` now returns a Promise and the return value should be awaited before accessing properties of the underlying headers instance. In this version of Next.js direct access to \`${expression}\` is still supported to facilitate migration but in a future version you will be required to await the result. If this \`headers()\` use is inside an async function await the return value before accessing attempting iteration. If this use is inside a synchronous function then convert the function to async or await the call from outside this function and pass the result in.`
+  }
+)
 
 type HeadersExtensions = {
   [K in keyof ReadonlyHeaders]: unknown

@@ -397,13 +397,6 @@ describe('dynamic-io', () => {
           expect.stringContaining(
             'enumerated incompletely with `{...searchParams}`, `Object.keys(searchParams)`, or similar.'
           ),
-          expect.stringContaining(
-            'accessed directly with `searchParams.sentinel`'
-          ),
-          expect.stringContaining('accessed directly with `searchParams.foo`'),
-          expect.stringContaining(
-            'accessed directly with `searchParams.value`'
-          ),
         ])
       } else {
         expect(searchWarnings).toHaveLength(0)
@@ -433,10 +426,6 @@ describe('dynamic-io', () => {
           expect.stringContaining(
             'enumerated with `{...searchParams}`, `Object.keys(searchParams)`, or similar.'
           ),
-          expect.stringContaining(
-            'accessed directly with `searchParams.sentinel`'
-          ),
-          expect.stringContaining('accessed directly with `searchParams.foo`'),
         ])
       } else {
         expect(searchWarnings).toHaveLength(0)
@@ -709,13 +698,6 @@ describe('dynamic-io', () => {
           expect.stringContaining(
             'enumerated incompletely with `{...searchParams}`, `Object.keys(searchParams)`, or similar.'
           ),
-          expect.stringContaining(
-            'accessed directly with `searchParams.sentinel`'
-          ),
-          expect.stringContaining('accessed directly with `searchParams.foo`'),
-          expect.stringContaining(
-            'accessed directly with `searchParams.value`'
-          ),
         ])
       } else {
         expect(searchWarnings).toHaveLength(0)
@@ -741,10 +723,6 @@ describe('dynamic-io', () => {
           expect.stringContaining(
             'enumerated with `{...searchParams}`, `Object.keys(searchParams)`, or similar.'
           ),
-          expect.stringContaining(
-            'accessed directly with `searchParams.sentinel`'
-          ),
-          expect.stringContaining('accessed directly with `searchParams.foo`'),
         ])
       } else {
         expect(searchWarnings).toHaveLength(0)
